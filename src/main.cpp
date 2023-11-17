@@ -5,7 +5,7 @@
 #include <Wire.h>
 #include <Adafruit_MCP4725.h>
 #include "..\inc\NextionDriver.h"
-#include "avr8-stub.h"
+
 
 #define   RESPONSE_SIZE_Nextion  15
 #define   RESPONSE_SIZE          150
@@ -149,10 +149,7 @@ void RESET_System(void)
   Serial1.print("p79.txt=");
   Serial1.write(0x22);
   Serial1.print(TotalTime);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
+  nextion.endCommand();
 
   Serial1.print("j0.val=");
   Serial1.print(0);
@@ -206,12 +203,9 @@ void loop()
     Serial1.print("p79.txt=");
     Serial1.write(0x22);
     Serial1.print(TotalTime);
-    Serial1.write(0x22);
-    Serial1.write(0xff);
-    Serial1.write(0xff);
-    Serial1.write(0xff);
+    nextion.endCommand();
 
-    for (i = 0; i < 19 ; i++)
+    for (i = 0; i <= 19 ; i++)
     {
       if (Durum[i] == 1) //Charge
       {
@@ -227,7 +221,6 @@ void loop()
         Serial1.write(0xff);
         Serial1.write(0xff);
         Serial1.write(0xff);
-
      
         MCP4725_value = ((819.0 * Current[i]) / 3.0) * 1.07;
         tcaselect(TCA_CHNL1);
@@ -242,13 +235,9 @@ void loop()
         Serial1.print("p79.txt=");
         Serial1.write(0x22);
         Serial1.print(TotalTime);
-        Serial1.write(0x22);
-        Serial1.write(0xff);
-        Serial1.write(0xff);
-        Serial1.write(0xff);
+        nextion.endCommand();
         Serial.print("Total time şarj : ");
         Serial.println(TotalTime);
-
       }
       
       else if (Durum[i] == 2) //Discharge
@@ -260,12 +249,11 @@ void loop()
           Current[i] = MaxLoadCurrent;
         }
         
-        
-
-
 
        // Serial.print(i);
         MCP4725_value = ((4095.0 * Current[i]) / 100.0);
+        tcaselect(TCA_CHNL1);
+        Load_Current.setVoltage(MCP4725_value, false);
         //Serial.println(Current[i]);
         tcaselect(TCA_CHNL2);
         PSU_Voltage.setVoltage(0, false);
@@ -311,7 +299,7 @@ void loop()
 
       Serial.print("voltaj : ");
       Serial.println(TotalVoltage);
-       if(TotalVoltage >(SeriesBattery*3) && TotalTime >= 0 ) // SeriesBattery yerine  *2.5 yazılacak
+       if(/*TotalVoltage >(SeriesBattery*3) &&*/ TotalTime >= 0 ) // SeriesBattery yerine  *2.5 yazılacak
         {
         tcaselect(TCA_CHNL1);
         Load_Current.setVoltage(MCP4725_value, false);
@@ -330,16 +318,11 @@ void loop()
      Serial1.print("p79.txt=");
      Serial1.write(0x22);
      Serial1.print(TotalTime);
-     Serial1.write(0x22);
-     Serial1.write(0xff);
-     Serial1.write(0xff);
-     Serial1.write(0xff);
-        Serial.print("Total Time : ");
-        Serial.println(TotalTime);
+     nextion.endCommand();
         
-        }  //WHILE SONU 
+    }  //WHILE SONU 
         
-        if(TotalVoltage <= (SeriesBattery*3))  // SeriesBattery yerine  *2.5 yazılacak
+        if(TotalVoltage > (SeriesBattery*3))  // SeriesBattery yerine  *2.5 yazılacak
         {
         i = 20;
         TotalTime = 0;
@@ -355,10 +338,7 @@ void loop()
           Serial1.print("p79.txt=");
           Serial1.write(0x22);
           Serial1.print(TotalTime);
-          Serial1.write(0x22);
-          Serial1.write(0xff);
-          Serial1.write(0xff);
-          Serial1.write(0xff);
+          nextion.endCommand();
         
           Serial1.print("j0.val=");
           Serial1.print(0);
@@ -376,7 +356,6 @@ void loop()
           }
       }
     }
-  
     TotalTime        = 0;
     digitalWrite(ChargePin, HIGH);
   
@@ -390,10 +369,7 @@ void loop()
     Serial1.print("p79.txt=");
     Serial1.write(0x22);
     Serial1.print(TotalTime);
-    Serial1.write(0x22);
-    Serial1.write(0xff);
-    Serial1.write(0xff);
-    Serial1.write(0xff);
+    nextion.endCommand();
 
     Serial1.print("j0.val=");
     Serial1.print(0);
@@ -433,10 +409,7 @@ void loop()
     Serial1.print("p19.txt=");
     Serial1.write(0x22);
     Serial1.print(SeriesBattery);
-    Serial1.write(0x22);
-    Serial1.write(0xff);
-    Serial1.write(0xff);
-    Serial1.write(0xff);
+    nextion.endCommand();
 
     ekran = 0;
     buton = 0;
@@ -446,18 +419,11 @@ void loop()
     SeriesBatterySet = SeriesBattery;
     BatVoltage = ((SeriesBatterySet * 4.2 * 4095.0) / 100.0) * 1.015;
     MaxLoadCurrent = ((1500.0 / (SeriesBatterySet * 4.2)));
-//    Serial.print("BatVoltage :");
-//    Serial.println(BatVoltage);
-//    Serial.print("MaxLoadCurrent :");
-//    Serial.print(MaxLoadCurrent);
 
     Serial1.print("p20.txt=");
     Serial1.write(0x22);
     Serial1.print(SeriesBatterySet);
-    Serial1.write(0x22);
-    Serial1.write(0xff);
-    Serial1.write(0xff);
-    Serial1.write(0xff);
+    nextion.endCommand();
 
     ekran = 0;
     buton = 0;
@@ -510,10 +476,7 @@ void loop()
     Serial1.print("p85.txt=");
     Serial1.write(0x22);
     Serial1.print(Scale);
-    Serial1.write(0x22);
-    Serial1.write(0xff);
-    Serial1.write(0xff);
-    Serial1.write(0xff);
+    nextion.endCommand();
 
     ekran = 0;
     buton = 0;
@@ -574,10 +537,7 @@ void ChargeDischarge(void)
   Serial1.print("p4.txt=");
   Serial1.write(0x22);
   Serial1.print(ChargeCurrentsayi);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
+  nextion.endCommand();
   /*-----------------*/
 
   /*Charge Time*/
@@ -600,10 +560,7 @@ void ChargeDischarge(void)
   Serial1.print("p6.txt=");
   Serial1.write(0x22);
   Serial1.print(ChargeTimesayi);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
+  nextion.endCommand();
   /*-----------------*/
 
   /*Discharge Current*/
@@ -626,10 +583,7 @@ void ChargeDischarge(void)
   Serial1.print("p12.txt=");
   Serial1.write(0x22);
   Serial1.print(DischargeCurrentsayi);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
+  nextion.endCommand();
 
 
   /*-----------------*/
@@ -656,17 +610,11 @@ void ChargeDischarge(void)
   Serial1.print("p14.txt=");
   Serial1.write(0x22);
   Serial1.print(DischargeTimesayi);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
+  nextion.endCommand();
   Serial1.print("p14.txt=");
   Serial1.write(0x22);
   Serial1.print(DischargeTimesayi);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
+  nextion.endCommand();
 
   ekran = 0;
   buton = 0;
@@ -712,537 +660,11 @@ void SetArray(void)
 
 void ReWriteNextionPage1(void)
 {
-  Serial1.write(0x22);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p4.txt=");
-  Serial1.write(0x22);
-  Serial1.print(ChargeCurrentsayi);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p6.txt=");
-  Serial1.write(0x22);
-  Serial1.print(ChargeTimesayi);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p12.txt=");
-  Serial1.write(0x22);
-  Serial1.print(DischargeCurrentsayi);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p14.txt=");
-  Serial1.write(0x22);
-  Serial1.print(DischargeTimesayi);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p79.txt=");
-  Serial1.write(0x22);
-  Serial1.print(TotalTime);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p19.txt=");
-  Serial1.write(0x22);
-  Serial1.print(SeriesBattery);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p20.txt=");
-  Serial1.write(0x22);
-  Serial1.print(SeriesBatterySet);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  //--- Birinci Satır ---///
-  Serial1.print("p26.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[0]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p27.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[1]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p28.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[2]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p29.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[3]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p30.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[4]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p31.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[5]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p32.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[6]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p33.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[7]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p34.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[8]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p35.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[9]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p36.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[10]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p37.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[11]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p38.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[12]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p39.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[13]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p40.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[14]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p41.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[15]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p42.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[16]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p43.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[17]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p81.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current[18]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  //--- Birinci Satır Sonu---///
-
-  //--- İkinci Satır ---///
-  Serial1.print("p22.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[0]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p23.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[1]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p24.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[2]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p25.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[3]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p44.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[4]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p45.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[5]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p46.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[6]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p47.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[7]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p48.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[8]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p49.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[9]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p50.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[10]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p51.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[11]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p52.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[12]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p53.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[13]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p54.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[14]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p55.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[15]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p56.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[16]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p57.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[17]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p82.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Time[18]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  //--- İkinci Satır Sonu---///
-
-  //--- Üçüncü Satır ---///
-  Serial1.print("p59.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p60.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p61.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p62.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p63.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p64.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p65.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p66.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p67.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p68.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p69.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p70.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p71.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p72.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p73.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p74.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p75.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p76.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p83.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  //--- Üçüncü Satır Sonu---///
-
+  nextion.reWritePage1(ChargeCurrentsayi,ChargeTimesayi,DischargeCurrentsayi,DischargeTimesayi,TotalTime,SeriesBattery,SeriesBatterySet,Current,Time);
   Serial1.print("p85.txt=");
   Serial1.write(0x22);
   Serial1.print(Scale);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
+  nextion.endCommand();
 }
 void ReWriteNextionPage2(void)
 {
@@ -1251,475 +673,7 @@ void ReWriteNextionPage2(void)
 void NextionReset(void)
 {
   Sayici = 0;
-
-  Serial1.write(0x22);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  //--- Birinci Satır ---///
-  Serial1.print("p26.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p27.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p28.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p29.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p30.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p31.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p32.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p33.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p34.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p35.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p36.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p37.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p38.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p39.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p40.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p41.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p42.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p43.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p81.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  //--- Birinci Satır Sonu---///
-
-  //--- İkinci Satır ---///
-  Serial1.print("p22.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p23.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p24.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p25.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p44.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p45.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p46.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p47.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p48.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p49.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p50.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p51.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p52.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p53.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p54.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p55.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p56.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p57.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p82.txt=");
-  Serial1.write(0x22);
-  Serial1.print(0);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  //--- İkinci Satır Sonu---///
-
-  //--- Üçüncü Satır ---///
-  Serial1.print("p59.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p60.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p61.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p62.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p63.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p64.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p65.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p66.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p67.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p68.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p69.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p70.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p71.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p72.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p73.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p74.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p75.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p76.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("p83.txt=");
-  Serial1.write(0x22);
-  Serial1.print(" ");
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  //--- Üçüncü Satır Sonu---///
-  //Serial.println("Resetledik");
+  nextion.resetNextionScreen();
 }
 /*MasterBMS ile Haberleşme Bölümü*/
 void SendCell(void)
@@ -1794,7 +748,6 @@ void SendCell(void)
   }
 }
 
-
 void SendTemp(void)
 {
   for (int j = 0; j < BMS_SIZE; j++)
@@ -1816,7 +769,6 @@ void SendTemp(void)
     responseMsg[a] = 0;
   }
 }
-
 
 void SendSOC(void)
 {
@@ -1868,311 +820,8 @@ void SendCurrent(void)
     Current1 = Current1 + 0;
   }
 }
+
 void WriteNextion(void)
 {
-  Serial1.write(0x22);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t72.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[0]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t73.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[1]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t74.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[2]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t75.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[3]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t76.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[4]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t77.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[5]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t78.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[6]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t79.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[7]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t81.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[8]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t82.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[9]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t83.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[10]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t84.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[11]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t85.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[12]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t86.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[13]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t87.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[14]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t88.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[15]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  //-------
-  Serial1.print("t90.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[16]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t91.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[17]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t92.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[18]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t93.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[19]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t94.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[20]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t95.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[21]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t96.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[22]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t97.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[23]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t99.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[24]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t100.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[25]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t101.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[26]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t102.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[27]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t103.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[28]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-
-  Serial1.print("t104.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[29]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-
-  Serial1.print("t105.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[30]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t106.txt=");
-  Serial1.write(0x22);
-  Serial1.print(cellFrame[31]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  //Serial.println(TotalVoltage);
-  Serial1.print("t80.txt=");
-  Serial1.write(0x22);
-  Serial1.print(TotalVoltage);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t89.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Current1);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t98.txt=");
-  Serial1.write(0x22);
-  Serial1.print(temp1);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t107.txt=");
-  Serial1.write(0x22);
-  Serial1.print(temp2);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-
-  Serial1.print("t71.txt=");
-  Serial1.write(0x22);
-  Serial1.print(Soc_totVal[0]);
-  Serial1.write(0x22);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
-  Serial1.write(0xff);
+  nextion.writeNextionScreen2(cellFrame, Soc_totVal, TotalVoltage, Current1, temp1, temp2);
 }
